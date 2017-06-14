@@ -2,7 +2,7 @@
 
 This is a script to convert the davis video dataset to the coco format.
 
-The code can be modified to convert any segmentation dataset (with mages, png segmentation mask annotations) to the coco format.
+The code can be modified to convert any segmentation dataset (with images, png segmentation mask annotations) to the coco format.
 
 The coco-format dataset involves a json object (dictionary) with a list of images, and polygon segmentations.
 
