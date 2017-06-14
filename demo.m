@@ -2,6 +2,7 @@
 %Dependencies: jsonlab (https://www.mathworks.com/matlabcentral/fileexchange/33381-jsonlab--a-toolbox-to-encode-decode-json-files)
 %Author: Siddhartha Chandra (siddhartha.chandra@inria.fr)
 VISUALIZE = true;
+VISUALIZE = false;
 ROOTDIR = '/Users/sidc/Davis';
 DATADIR = fullfile(ROOTDIR,'data');
 colors_ = {'y','m','c','r','g','b','w','k'};
@@ -18,7 +19,7 @@ for setid_ = 1 : n
     subsets_ = {imagesets_.name};
     ns = numel(subsets_);
     for subsetid_ = 1 : ns
-
+        
         % create datastructure for dataset
         % field: images (id, file_name,width,height,seg_file_name)
         % field: type ('instances')
@@ -34,8 +35,8 @@ for setid_ = 1 : n
         davis.categories{1}.supercategory = 'salient';
         davis.categories{1}.name = 'salient';
         davis.categories{1}.id = 1;
-
-
+        
+        
         list_ = textread(fullfile(DATADIR,set_,'ImageSets/2017',subsets_{subsetid_}),'%s');
         nl = numel(list_);
         for seqid_ = 1 : nl
@@ -45,6 +46,7 @@ for setid_ = 1 : n
             rgb_ = {rgb_.name};
             ni = numel(rgb_);
             for i = 1 : ni
+                fprintf('.');
                 imgid = imgid + 1;
                 imgpath_ = fullfile(DATADIR,set_,'JPEGImages/480p',list_{seqid_},rgb_{i});
                 segpath_ = fullfile(DATADIR,set_,'Annotations/480p',list_{seqid_},regexprep(rgb_{i},'.jpg','.png'));
@@ -52,8 +54,8 @@ for setid_ = 1 : n
                 seg= imread(segpath_);
                 [r_,c_] = size(seg);
                 davis.images{imgid} = struct;
-                davis.images{imgid}.file_name = rgb_{i};
-                davis.images{imgid}.seg_file_name = regexprep(rgb_{i},'.jpg','.png');
+                davis.images{imgid}.file_name = fullfile(list_{seqid_},rgb_{i});
+                davis.images{imgid}.seg_file_name = fullfile(list_{seqid_},regexprep(rgb_{i},'.jpg','.png'));
                 davis.images{imgid}.width = c_;
                 davis.images{imgid}.height = r_;
                 davis.images{imgid}.id = imgid;
@@ -95,15 +97,16 @@ for setid_ = 1 : n
                     segmentations_ = cell(1,N_);
                     for polyid = 1 : N_
                         thisPoly_ = B_{polyid};
+                        %keyboard;
                         thisPoly_ = [thisPoly_(:,2) thisPoly_(:,1)];
                         if VISUALIZE % some visualization
                             colorid_ = rem(inst,numel(colors_));
                             color_ = colors_{colorid_};
                             subplot(2,2,4); hold on; plot(thisPoly_(:,1),thisPoly_(:,2),color_,'Linewidth',3);
                         end
-                        thisPoly_ = reshape(thisPoly_,1,[]);
+                        thisPoly_ = reshape(thisPoly_',1,[]);
                         segmentations_{polyid} = thisPoly_;
-
+                       
                     end
                     annid = annid + 1;
                     davis.annotations{annid} = struct;
@@ -120,8 +123,8 @@ for setid_ = 1 : n
                 all_labels = unique([all_labels; uu]);
             end
             fprintf('label_set %s\n',num2str(all_labels'));
-
+            
         end
         savejson('',davis,(regexprep(subsets_{subsetid_},'.txt','.json')));
-    end
+    end   
 end
